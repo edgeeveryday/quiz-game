@@ -13,11 +13,15 @@
     <!-- Start Screen -->
     <div id="quiz-start">
       <input type="text" id="username" placeholder="Enter your name" />
-      
+
       <div class="category-select">
         <label><input type="radio" name="category" value="math" checked> Math</label>
         <label><input type="radio" name="category" value="science"> Science</label>
         <label><input type="radio" name="category" value="history"> History</label>
+        <label>
+  <input type="radio" name="category" value="movies" required />
+  🎬 Movies
+</label>
       </div>
 
       <button id="start-btn">Start Quiz</button>
@@ -30,6 +34,7 @@
         <div id="question-text"></div>
         <div id="answer-buttons"></div>
         <div id="timer">⏱ Time: <span id="time-remaining">10</span>s</div>
+        <div id="score-value"></div>
       </div>
     </div>
 
@@ -41,6 +46,11 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <div id="home-leaderboards" class="home-leaderboard-grid"></div>
+
+  <!-- Firebase App -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>

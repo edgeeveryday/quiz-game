@@ -1,3 +1,39 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAXSZOrQZTOy-Q1mCP2LAWkBcaVTyDKHmA",
+  authDomain: "smart-quiz-game.firebaseapp.com",
+  projectId: "smart-quiz-game",
+  storageBucket: "smart-quiz-game.firebasestorage.app",
+  messagingSenderId: "940028495772",
+  appId: "1:940028495772:web:5170f70d14faa1e6e86a59"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+// Anonymous login
+signInAnonymously(auth)
+  .then(() => {
+    console.log("✅ Signed in anonymously");
+  })
+  .catch((error) => {
+    console.error("❌ Anonymous sign-in failed", error);
+  });
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    console.log("👤 Current UID:", user.uid);
+    displayAllCategoryLeaderboards(); // Show leaderboards once user is authenticated
+  }
+});
+
 let allQuestions = {};
 let selectedQuestions = [];
 let currentQuestionIndex = 0;
@@ -17,9 +53,25 @@ const wrongSound = new Audio('wrong.mp3');
 document.getElementById('start-btn').addEventListener('click', startQuiz);
 document.getElementById('play-again-btn').addEventListener('click', () => location.reload());
 
+function containsProfanity(name) {
+  const bannedWords = ['fool', 'idiot', 'dumb', 'nazi', 'f***', 's***', 'a**', 'bitch', 'bastard'];
+  const lowered = name.toLowerCase();
+  return bannedWords.some(word => lowered.includes(word));
+}
+
 function startQuiz() {
   userName = document.getElementById('username').value.trim();
-  if (!userName) return alert("Please enter your name!");
+
+  const isValid = /^[a-zA-Z0-9_]{3,20}$/.test(userName);
+  if (!isValid) {
+    alert("❌ Please enter a valid username (3–20 characters, letters, numbers, and underscores only).");
+    return;
+  }
+
+  if (containsProfanity(userName)) {
+    alert("⚠️ Please choose a more appropriate username.");
+    return;
+  }
 
   selectedCategory = document.querySelector('input[name="category"]:checked').value;
 
@@ -63,7 +115,7 @@ function showQuestion() {
   answers.forEach(choice => {
     const button = document.createElement('button');
     button.textContent = choice;
-    button.classList.add('fade-in');
+    //button.classList.add('fade-in');
     button.onclick = () => selectAnswer(choice);
     answerButtons.appendChild(button);
   });
@@ -71,17 +123,27 @@ function showQuestion() {
   startTimer();
 }
 
+
+
 function startTimer() {
-  document.getElementById('time-remaining').textContent = timeRemaining;
+  const timerEl = document.getElementById('time-remaining');
+  timerEl.textContent = timeRemaining;
+  timerEl.classList.remove('timer-pulse'); // reset
+
   timer = setInterval(() => {
     timeRemaining--;
-    document.getElementById('time-remaining').textContent = timeRemaining;
+    timerEl.textContent = timeRemaining;
+    timerEl.classList.remove('timer-pulse');
+    void timerEl.offsetWidth; // re-trigger animation
+    timerEl.classList.add('timer-pulse');
+
     if (timeRemaining <= 0) {
       clearInterval(timer);
       selectAnswer(null); // Timeout
     }
   }, 1000);
 }
+
 
 function selectAnswer(choice) {
   clearInterval(timer);
@@ -91,7 +153,7 @@ function selectAnswer(choice) {
   let pointsEarned = 0;
   if (correct) {
     correctSound.play();
-    pointsEarned = Math.max(1, timeRemaining); // faster → more points
+    pointsEarned = Math.max(1, timeRemaining); // Faster = more points
     score += pointsEarned;
     correctStreak++;
   } else {
@@ -108,21 +170,39 @@ function selectAnswer(choice) {
     points: pointsEarned
   });
 
+  // ✅ Update and animate score display
+  const scoreEl = document.getElementById('score-value');
+  if (scoreEl) {
+    scoreEl.textContent = `Score: ${score}`;
+    scoreEl.classList.remove('score-bounce');
+    void scoreEl.offsetWidth; // Force reflow to restart animation
+    scoreEl.classList.add('score-bounce');
+  }
+
   currentQuestionIndex++;
 
-  if (currentQuestionIndex < totalQuestions) {
-    setTimeout(showQuestion, 600);
-  } else {
-    endQuiz();
-  }
+ if (currentQuestionIndex < totalQuestions) {
+  showQuestion(); // no fade-out
+} else {
+  endQuiz();
+}
 }
 
-function endQuiz() {
+async function endQuiz() {
   document.getElementById('quiz-container').classList.add('hidden');
   const resultBox = document.getElementById('result-container');
   resultBox.classList.remove('hidden');
+ // Remove only score, badges, and leaderboard if already present
+document.getElementById('score-text')?.remove();
+document.getElementById('badges')?.remove();
+document.getElementById('leaderboard-box')?.remove();
+document.querySelector('.breakdown-list')?.remove();
 
-  document.getElementById('score-text').textContent = `${userName}, you scored ${score} points`;
+
+  const scoreText = document.createElement('div');
+  scoreText.id = "score-text";
+  scoreText.textContent = `${userName}, you scored ${score} points`;
+  resultBox.appendChild(scoreText);
 
   const badges = [];
   if (score >= 9 * totalQuestions) badges.push("🏆 Quiz Master");
@@ -130,18 +210,62 @@ function endQuiz() {
   if (correctStreak >= 5) badges.push("🔥 Streak Hero");
   if (score <= 5 && correctStreak >= 3) badges.push("🔁 Comeback Kid");
 
-  document.getElementById('badges').innerHTML = `<strong>Badges:</strong> ${badges.length ? badges.join(" ") : "None"}`;
+  const badgeEl = document.createElement('div');
+  badgeEl.id = "badges";
+  badgeEl.innerHTML = `<strong>Badges:</strong> ${badges.length ? badges.join(" ") : "None"}`;
+  resultBox.appendChild(badgeEl);
 
-  updateLeaderboard(userName, score);
+  await updateLeaderboard(userName, score, selectedCategory);
   showBreakdown();
+}
+
+async function updateLeaderboard(name, score, category) {
+  if (!currentUser) {
+    console.error("No user signed in");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, 'leaderboard'), {
+      uid: currentUser.uid,
+      name,
+      score,
+      category,
+      timestamp: Date.now()
+    });
+
+    const q = query(
+      collection(db, 'leaderboard'),
+      orderBy('score', 'desc'),
+      limit(5)
+    );
+
+    const snapshot = await getDocs(q);
+
+    const leaderboardBox = document.createElement('div');
+    leaderboardBox.id = 'leaderboard-box';
+    leaderboardBox.innerHTML = `<h3>🏅 Top 5 Scores:</h3><ol>`;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.category === category) {
+        leaderboardBox.innerHTML += `<li>${data.name} — ${data.score}</li>`;
+      }
+    });
+
+    leaderboardBox.innerHTML += `</ol>`;
+    document.getElementById('result-container').appendChild(leaderboardBox);
+
+  } catch (err) {
+    console.error("🔥 Leaderboard error:", err);
+  }
 }
 
 function showBreakdown() {
   const breakdown = document.createElement('div');
   breakdown.classList.add('breakdown-list');
 
-  breakdown.innerHTML = `<h3>📊 Per-Question Breakdown:</h3>`;
-  breakdown.innerHTML += `<ul>` +
+  breakdown.innerHTML = `<h3>📊 Per-Question Breakdown:</h3><ul>` +
     perQuestionBreakdown.map((q, i) => `
       <li>
         <strong>Q${i + 1}:</strong> ${q.question}<br/>
@@ -157,21 +281,33 @@ function showBreakdown() {
   document.getElementById('result-container').appendChild(breakdown);
 }
 
-function updateLeaderboard(name, score) {
-  const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-  leaderboard.push({ name, score });
-  leaderboard.sort((a, b) => b.score - a.score);
-  localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 5)));
+// 🔥 Show top scores per category on homepage
+async function displayAllCategoryLeaderboards() {
+  const categories = ['math', 'science', 'history', 'movies']; // update as needed
+  const container = document.getElementById('home-leaderboards');
+  if (!container) return;
 
-  let leaderboardText = "<h3>🏅 Top 5 Scores</h3><ul>";
-  leaderboard.slice(0, 5).forEach((entry, index) => {
-    leaderboardText += `<li>${index + 1}. ${entry.name} - ${entry.score} pts</li>`;
-  });
-  leaderboardText += "</ul>";
+  container.innerHTML = '';
 
-  const leaderboardBox = document.createElement('div');
-  leaderboardBox.innerHTML = leaderboardText;
-  document.getElementById('result-container').appendChild(leaderboardBox);
+  for (const cat of categories) {
+    const q = query(collection(db, 'leaderboard'), orderBy('score', 'desc'));
+    const snapshot = await getDocs(q);
+    const filtered = [];
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.category === cat) filtered.push(data);
+    });
+
+    const top5 = filtered.slice(0, 5);
+    const section = document.createElement('div');
+    section.classList.add('leaderboard-section');
+    section.innerHTML = `<h3>🏆 Top in ${cat.charAt(0).toUpperCase() + cat.slice(1)}:</h3><ol>` +
+      top5.map(entry => `<li>${entry.name} — ${entry.score}</li>`).join('') +
+      `</ol>`;
+
+    container.appendChild(section);
+  }
 }
 
 function shuffle(arr) {

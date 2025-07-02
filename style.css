@@ -145,3 +145,54 @@ input[type="text"] {
     opacity: 1;
   }
 }
+
+#leaderboard-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  color: #fff;
+}
+#leaderboard-box ol {
+  padding-left: 20px;
+}
+
+#leaderboard-box {
+  margin-bottom: 30px;
+}
+.breakdown-list {
+  margin-top: 10px;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+.timer-pulse {
+  animation: pulse 0.2s ease;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+
+#score-value {
+  margin-top: 12px;
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #00ffcc;
+}
+
+
+
+
