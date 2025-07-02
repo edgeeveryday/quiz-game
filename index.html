@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Quiz Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Smart Quiz Game</h1>
+
+    <!-- Start Screen -->
+    <div id="quiz-start">
+      <input type="text" id="username" placeholder="Enter your name" />
+      
+      <div class="category-select">
+        <label><input type="radio" name="category" value="math" checked> Math</label>
+        <label><input type="radio" name="category" value="science"> Science</label>
+        <label><input type="radio" name="category" value="history"> History</label>
+      </div>
+
+      <button id="start-btn">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-container" class="hidden">
+      <div id="question-box">
+        <div id="question-number"></div>
+        <div id="question-text"></div>
+        <div id="answer-buttons"></div>
+        <div id="timer">⏱ Time: <span id="time-remaining">10</span>s</div>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-container" class="container hidden">
+      <h2 id="score-text"></h2>
+      <p id="badges"></p>
+      <button id="play-again-btn">🔄 Play Again</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+/* Base styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #00ffff;
+}
+
+/* Buttons */
+button {
+  background-color: #007acc;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  margin-top: 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #00aaff;
+}
+
+#answer-buttons button {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  background-color: #1e1e2f;
+  border: 1px solid #00ffff;
+  transition: all 0.3s ease;
+}
+
+#answer-buttons button:hover {
+  background-color: #005577;
+}
+
+/* Inputs */
+input[type="text"] {
+  padding: 10px;
+  width: 80%;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+}
+
+/* Timer */
+#timer {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #00ffff;
+}
+
+/* Question/Answer styles */
+#question-box {
+  padding: 10px;
+}
+
+#question-number {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  color: #ccc;
+}
+
+#question-text {
+  font-size: 1.4em;
+  margin-bottom: 12px;
+}
+
+/* Category selection */
+.category-select {
+  margin: 15px 0;
+  color: #ccc;
+}
+
+.category-select label {
+  margin: 0 10px;
+  font-weight: normal;
+}
+
+.category-select input[type="radio"] {
+  accent-color: #00ffff;
+}
+
+/* Result */
+#result-container h2 {
+  font-size: 2em;
+  color: #00ffff;
+}
+
+#badges {
+  margin-top: 10px;
+  font-size: 1.2em;
+  color: #ffcc00;
+}
+
+/* Leaderboard display */
+#result-container pre {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid #00ffff;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 15px;
+  color: #ffffff;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+/* Hidden class */
+.hidden {
+  display: none;
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
