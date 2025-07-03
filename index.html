@@ -25,6 +25,8 @@
       </div>
 
       <button id="start-btn">Start Quiz</button>
+      <button id="rules-btn">ℹ️ Rules</button>
+
     </div>
 
     <!-- Quiz Screen -->
@@ -47,6 +49,21 @@
   </div>
 
   <div id="home-leaderboards" class="home-leaderboard-grid"></div>
+
+  <div id="rules-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h2>📋 Quiz Rules</h2>
+    <ul>
+      <li>✅ <strong>Correct Answer:</strong> 1–10 points depending on how quickly you answer.</li>
+      <li>⏱️ <strong>Faster answers = More points</strong></li>
+      <li>❌ <strong>Wrong Answer or Timeout:</strong> 0 points</li>
+      <li>🔥 <strong>Answer streaks</strong> may unlock badges!</li>
+      <li>🕒 <strong>10 seconds</strong> per question</li>
+    </ul>
+  </div>
+</div>
+
 
   <!-- Firebase App -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>

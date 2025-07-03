@@ -49,6 +49,9 @@ let perQuestionBreakdown = [];
 
 const correctSound = new Audio('correct.mp3');
 const wrongSound = new Audio('wrong.mp3');
+const beepSound = new Audio('beep.mp3');
+const buzzerSound = new Audio('buzzer.mp3');
+
 
 document.getElementById('start-btn').addEventListener('click', startQuiz);
 document.getElementById('play-again-btn').addEventListener('click', () => location.reload());
@@ -128,22 +131,29 @@ function showQuestion() {
 function startTimer() {
   const timerEl = document.getElementById('time-remaining');
   timerEl.textContent = timeRemaining;
-  timerEl.classList.remove('timer-pulse'); // reset
+  timerEl.classList.remove('timer-pulse');
 
   timer = setInterval(() => {
     timeRemaining--;
     timerEl.textContent = timeRemaining;
     timerEl.classList.remove('timer-pulse');
-    void timerEl.offsetWidth; // re-trigger animation
+    void timerEl.offsetWidth;
     timerEl.classList.add('timer-pulse');
 
+    // 🔊 Beep in last 3 seconds
+    if (timeRemaining <= 3 && timeRemaining > 0) {
+      beepSound.currentTime = 0;
+      beepSound.play();
+    }
+
+    // 🛑 Time's up
     if (timeRemaining <= 0) {
       clearInterval(timer);
-      selectAnswer(null); // Timeout
+      buzzerSound.play(); // 🔊 Final buzzer
+      selectAnswer(null);
     }
   }, 1000);
 }
-
 
 function selectAnswer(choice) {
   clearInterval(timer);
@@ -316,3 +326,23 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
+
+// Rules Modal Logic
+const rulesBtn = document.getElementById('rules-btn');
+const rulesModal = document.getElementById('rules-modal');
+const closeBtn = document.querySelector('.close-btn');
+
+rulesBtn.addEventListener('click', () => {
+  rulesModal.classList.remove('hidden');
+});
+
+closeBtn.addEventListener('click', () => {
+  rulesModal.classList.add('hidden');
+});
+
+// Optional: close on background click
+rulesModal.addEventListener('click', (e) => {
+  if (e.target === rulesModal) {
+    rulesModal.classList.add('hidden');
+  }
+});
